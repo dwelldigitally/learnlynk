@@ -37,26 +37,44 @@ Deno.serve(async (req) => {
 
     console.log('Aircall API call initiated by user:', user.id);
 
+    // Get user's tenant ID from JWT claims or tenant_users table
+    const { data: tenantUser, error: tenantError } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .eq('is_primary', true)
+      .single();
+
+    if (tenantError || !tenantUser) {
+      throw new Error('User not associated with a tenant');
+    }
+
+    const tenantId = tenantUser.tenant_id;
+    console.log('Tenant ID:', tenantId);
+
+    // Get tenant's Aircall connection
+    const { data: connection, error: connectionError } = await supabase
+      .from('tenant_aircall_connections')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .single();
+
+    if (connectionError || !connection) {
+      throw new Error('Aircall connection not found for this institution');
+    }
+
+    if (!connection.is_active || connection.connection_status !== 'connected') {
+      throw new Error('Aircall integration is not active');
+    }
+
+    const apiId = connection.api_id;
+    const apiToken = connection.api_token_encrypted;
+
     if (req.method === 'POST') {
       const { phoneNumber, leadId }: AircallCallRequest = await req.json();
 
       if (!phoneNumber) {
         throw new Error('Phone number is required');
-      }
-
-      // Get user's Aircall settings
-      const { data: settings, error: settingsError } = await supabase
-        .from('aircall_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (settingsError || !settings) {
-        throw new Error('Aircall settings not found');
-      }
-
-      if (!settings.is_active || !settings.click_to_call_enabled) {
-        throw new Error('Aircall integration is not active');
       }
 
       // Test Aircall API connection first
@@ -65,7 +83,7 @@ Deno.serve(async (req) => {
       const pingResponse = await fetch('https://api.aircall.io/v1/ping', {
         method: 'GET',
         headers: {
-          'Authorization': `Basic ${btoa(`${settings.api_id}:${settings.api_token_encrypted}`)}`,
+          'Authorization': `Basic ${btoa(`${apiId}:${apiToken}`)}`,
           'Content-Type': 'application/json',
         },
       });
@@ -81,13 +99,13 @@ Deno.serve(async (req) => {
 
       const callPayload = {
         to: phoneNumber,
-        from: settings.api_id, // Use the configured number or agent
+        from: apiId, // Use the configured number or agent
       };
 
       const aircallResponse = await fetch('https://api.aircall.io/v1/calls', {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${btoa(`${settings.api_id}:${settings.api_token_encrypted}`)}`,
+          'Authorization': `Basic ${btoa(`${apiId}:${apiToken}`)}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(callPayload),
@@ -102,8 +120,9 @@ Deno.serve(async (req) => {
 
       console.log('Call initiated successfully via Aircall:', aircallData);
 
-      // Create call record in database with real Aircall data
+      // Create call record in database with tenant_id
       const callData = {
+        tenant_id: tenantId,
         user_id: user.id,
         lead_id: leadId || null,
         phone_number: phoneNumber,
@@ -167,6 +186,35 @@ Deno.serve(async (req) => {
       });
     }
 
+    // GET request - fetch call history
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      const leadId = url.searchParams.get('leadId');
+      const limit = parseInt(url.searchParams.get('limit') || '20');
+
+      let query = supabase
+        .from('aircall_calls')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .order('started_at', { ascending: false })
+        .limit(limit);
+
+      if (leadId) {
+        query = query.eq('lead_id', leadId);
+      }
+
+      const { data: calls, error: callsError } = await query;
+
+      if (callsError) {
+        throw new Error('Failed to fetch call history');
+      }
+
+      return new Response(JSON.stringify({ calls }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 405,
@@ -177,7 +225,6 @@ Deno.serve(async (req) => {
     
     return new Response(JSON.stringify({ 
       error: error.message || 'Internal server error',
-      demo_mode: true 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

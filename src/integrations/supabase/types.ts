@@ -955,6 +955,7 @@ export type Database = {
           status: string
           summary: string | null
           tags: string[] | null
+          tenant_id: string | null
           transcription: string | null
           updated_at: string
           user_id: string
@@ -982,6 +983,7 @@ export type Database = {
           status: string
           summary?: string | null
           tags?: string[] | null
+          tenant_id?: string | null
           transcription?: string | null
           updated_at?: string
           user_id: string
@@ -1009,6 +1011,7 @@ export type Database = {
           status?: string
           summary?: string | null
           tags?: string[] | null
+          tenant_id?: string | null
           transcription?: string | null
           updated_at?: string
           user_id?: string
@@ -1019,6 +1022,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aircall_calls_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -10651,6 +10661,74 @@ export type Database = {
           },
         ]
       }
+      tenant_aircall_connections: {
+        Row: {
+          api_id: string
+          api_token_encrypted: string
+          auto_create_leads: boolean | null
+          auto_log_calls: boolean | null
+          call_recording_enabled: boolean | null
+          connected_at: string | null
+          connected_by: string | null
+          connection_status: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          tenant_id: string
+          transcription_enabled: boolean | null
+          updated_at: string
+          webhook_secret: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          api_id: string
+          api_token_encrypted: string
+          auto_create_leads?: boolean | null
+          auto_log_calls?: boolean | null
+          call_recording_enabled?: boolean | null
+          connected_at?: string | null
+          connected_by?: string | null
+          connection_status?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          tenant_id: string
+          transcription_enabled?: boolean | null
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          api_id?: string
+          api_token_encrypted?: string
+          auto_create_leads?: boolean | null
+          auto_log_calls?: boolean | null
+          call_recording_enabled?: boolean | null
+          connected_at?: string | null
+          connected_by?: string | null
+          connection_status?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          tenant_id?: string
+          transcription_enabled?: boolean | null
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_aircall_connections_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_invitations: {
         Row: {
           accepted_at: string | null
@@ -10864,6 +10942,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_aircall_sessions: {
+        Row: {
+          aircall_user_email: string | null
+          aircall_user_id: string | null
+          aircall_user_name: string | null
+          created_at: string
+          id: string
+          is_logged_in: boolean | null
+          last_login_at: string | null
+          last_logout_at: string | null
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aircall_user_email?: string | null
+          aircall_user_id?: string | null
+          aircall_user_name?: string | null
+          created_at?: string
+          id?: string
+          is_logged_in?: boolean | null
+          last_login_at?: string | null
+          last_logout_at?: string | null
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aircall_user_email?: string | null
+          aircall_user_id?: string | null
+          aircall_user_name?: string | null
+          created_at?: string
+          id?: string
+          is_logged_in?: boolean | null
+          last_login_at?: string | null
+          last_logout_at?: string | null
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_aircall_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_notification_preferences: {
         Row: {

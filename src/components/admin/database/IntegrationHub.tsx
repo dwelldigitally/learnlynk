@@ -23,6 +23,7 @@ import { HubSpotOwnerManagement } from "@/components/admin/integrations/HubSpotO
 import { HubSpotIntegrationStatus } from "@/components/admin/integrations/HubSpotIntegrationStatus";
 import { HubSpotOAuthHandler } from "@/components/admin/integrations/HubSpotOAuthHandler";
 import { HubSpotConnectionTest } from "@/components/admin/integrations/HubSpotConnectionTest";
+import { AircallIntegrationSettings } from "@/components/admin/integrations/AircallIntegrationSettings";
 
 export const IntegrationHub = () => {
   const [showApiKeys, setShowApiKeys] = useState<{ [key: string]: boolean }>({});
@@ -224,6 +225,7 @@ export const IntegrationHub = () => {
         </TabsContent>
 
         <TabsContent value="communication" className="space-y-4">
+          <AircallIntegrationSettings />
           {communicationIntegrations.map(integration => (
             <IntegrationCard key={integration.id} integration={integration} />
           ))}

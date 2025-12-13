@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle, List, TrendingUp } from 'lucide-react';
+import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle, List, TrendingUp, Building2 } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
 import { LeadAllPropertiesModal } from './LeadAllPropertiesModal';
 import { LeadService } from '@/services/leadService';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useIntakesByProgramName } from '@/hooks/useIntakes';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
+import { useCampuses } from '@/hooks/useCampuses';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProgramChangeConfirmDialog } from './ProgramChangeConfirmDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,6 +44,10 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const [selectedIntakeId, setSelectedIntakeId] = useState<string>((lead as any).preferred_intake_id || '');
   const [selectedTermId, setSelectedTermId] = useState<string>((lead as any).academic_term_id || '');
   const [selectedLifecycleStage, setSelectedLifecycleStage] = useState<string>((lead as any).lifecycle_stage || '');
+  const [selectedCampusId, setSelectedCampusId] = useState<string>((lead as any).preferred_campus_id || '');
+  
+  // Fetch campuses
+  const { data: campuses = [], isLoading: campusesLoading } = useCampuses();
   
   // Fetch lifecycle stages from system_properties
   const { data: lifecycleStages = [], isLoading: stagesLoading } = useQuery({
@@ -134,7 +139,8 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
         updated_at: new Date().toISOString(),
         preferred_intake_id: selectedIntakeId || null,
         academic_term_id: selectedTermId || null,
-        lifecycle_stage: selectedLifecycleStage || null
+        lifecycle_stage: selectedLifecycleStage || null,
+        preferred_campus_id: selectedCampusId || null
       };
 
       // Calculate changed fields for activity logging
@@ -171,6 +177,10 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
       // Check lifecycle stage
       const oldLifecycleStage = (lead as any).lifecycle_stage || '';
       if (selectedLifecycleStage !== oldLifecycleStage) changedFields.lifecycle_stage = { old: oldLifecycleStage, new: selectedLifecycleStage };
+      
+      // Check campus
+      const oldCampusId = (lead as any).preferred_campus_id || '';
+      if (selectedCampusId !== oldCampusId) changedFields.preferred_campus_id = { old: oldCampusId, new: selectedCampusId };
       
       // Check notes
       if (formData.notes !== (lead.notes || '')) changedFields.notes = { old: lead.notes || '', new: formData.notes };
@@ -489,6 +499,46 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="campus" className="flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                Preferred Campus
+              </Label>
+              <Select 
+                value={selectedCampusId} 
+                onValueChange={setSelectedCampusId}
+                disabled={campusesLoading}
+              >
+                <SelectTrigger>
+                  {campusesLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading campuses...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder="Select campus" />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {campuses.map((campus) => (
+                    <SelectItem key={campus.id} value={campus.id}>
+                      {campus.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Campus-Program validation */}
+          <CampusProgramValidation 
+            selectedCampusId={selectedCampusId}
+            selectedProgram={selectedProgram}
+            campuses={campuses}
+            programs={programs}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="intake_date">Preferred Intake Date</Label>
               <Select 
                 value={selectedIntakeId} 
@@ -645,5 +695,52 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
       />
     </form>
     </>
+  );
+}
+
+// Campus-Program validation component
+interface CampusProgramValidationProps {
+  selectedCampusId: string;
+  selectedProgram: string;
+  campuses: any[];
+  programs: any[];
+}
+
+function CampusProgramValidation({ selectedCampusId, selectedProgram, campuses, programs }: CampusProgramValidationProps) {
+  const validationResult = useMemo(() => {
+    if (!selectedCampusId || !selectedProgram) return null;
+    
+    const selectedProgramData = programs.find(p => p.name === selectedProgram);
+    if (!selectedProgramData) return null;
+    
+    // Get program's available campuses from metadata
+    const programCampuses: string[] = selectedProgramData.metadata?.campus || [];
+    if (programCampuses.length === 0) return null; // No campus restrictions
+    
+    const selectedCampusData = campuses.find(c => c.id === selectedCampusId);
+    if (!selectedCampusData) return null;
+    
+    const isCampusValid = programCampuses.includes(selectedCampusData.name);
+    
+    if (isCampusValid) return null;
+    
+    return {
+      isInvalid: true,
+      selectedCampusName: selectedCampusData.name,
+      availableCampuses: programCampuses
+    };
+  }, [selectedCampusId, selectedProgram, campuses, programs]);
+  
+  if (!validationResult) return null;
+  
+  return (
+    <Alert variant="destructive">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>
+        <strong>Program not available at {validationResult.selectedCampusName}.</strong>
+        <br />
+        Available campuses: {validationResult.availableCampuses.join(', ')}
+      </AlertDescription>
+    </Alert>
   );
 }

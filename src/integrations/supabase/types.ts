@@ -4610,6 +4610,7 @@ export type Database = {
           owner_assigned_date: string | null
           phone: string | null
           postal_code: string | null
+          preferred_campus_id: string | null
           preferred_intake_id: string | null
           priority: Database["public"]["Enums"]["lead_priority"]
           program_interest: string[] | null
@@ -4683,6 +4684,7 @@ export type Database = {
           owner_assigned_date?: string | null
           phone?: string | null
           postal_code?: string | null
+          preferred_campus_id?: string | null
           preferred_intake_id?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
@@ -4756,6 +4758,7 @@ export type Database = {
           owner_assigned_date?: string | null
           phone?: string | null
           postal_code?: string | null
+          preferred_campus_id?: string | null
           preferred_intake_id?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
@@ -4799,6 +4802,13 @@ export type Database = {
             columns: ["master_record_id"]
             isOneToOne: false
             referencedRelation: "master_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_preferred_campus_id_fkey"
+            columns: ["preferred_campus_id"]
+            isOneToOne: false
+            referencedRelation: "master_campuses"
             referencedColumns: ["id"]
           },
           {

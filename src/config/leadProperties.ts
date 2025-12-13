@@ -622,6 +622,18 @@ export const LEAD_PROPERTIES: LeadPropertyDefinition[] = [
     maxWidth: 180 
   },
   { 
+    key: 'preferred_campus_id', 
+    label: 'Preferred Campus', 
+    category: 'Program', 
+    type: 'string', 
+    operators: SELECT_OPERATORS,
+    dynamicOptions: 'campuses',
+    sortable: false, 
+    minWidth: 120, 
+    maxWidth: 180,
+    description: 'The campus where the lead prefers to study'
+  },
+  { 
     key: 'academic_term_id', 
     label: 'Academic Term', 
     category: 'Program', 

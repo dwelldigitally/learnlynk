@@ -1,12 +1,35 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCap } from 'lucide-react';
 import { Lead } from '@/types/lead';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProgramDetailsWidgetProps {
   lead: Lead;
 }
 
 export function ProgramDetailsWidget({ lead }: ProgramDetailsWidgetProps) {
+  // Fetch campus name if preferred_campus_id exists
+  const { data: campus } = useQuery({
+    queryKey: ['campus', (lead as any).preferred_campus_id],
+    queryFn: async () => {
+      const campusId = (lead as any).preferred_campus_id;
+      if (!campusId) return null;
+      
+      const { data, error } = await supabase
+        .from('master_campuses')
+        .select('name')
+        .eq('id', campusId)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!(lead as any).preferred_campus_id,
+  });
+
+  const campusName = campus?.name || ((lead as any).preferred_campus_id ? 'Loading...' : 'Not selected');
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
@@ -46,7 +69,7 @@ export function ProgramDetailsWidget({ lead }: ProgramDetailsWidgetProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Campus</p>
-              <p className="font-medium text-foreground">Main Campus</p>
+              <p className="font-medium text-foreground">{campusName}</p>
             </div>
           </div>
         </div>

@@ -315,10 +315,47 @@ export class LeadService {
   }
 
   /**
-   * Updates lead status
+   * Updates lead status and captures AI training data for converted/lost leads
    */
   static async updateStatus(leadId: string, status: string): Promise<{ error: any }> {
-    return this.updateLead(leadId, { status: status as any });
+    const result = await this.updateLead(leadId, { status: status as any });
+    
+    // Capture training data for AI scoring when lead outcome is known
+    if (!result.error && ['converted', 'lost'].includes(status.toLowerCase())) {
+      this.captureTrainingDataAsync(leadId, status.toLowerCase() as 'converted' | 'lost');
+    }
+    
+    return result;
+  }
+
+  /**
+   * Captures AI training data asynchronously (fire-and-forget)
+   */
+  private static async captureTrainingDataAsync(leadId: string, outcome: 'converted' | 'lost'): Promise<void> {
+    try {
+      // Get lead to find tenant_id
+      const { data: lead } = await this.getLead(leadId);
+      const tenantId = (lead as any)?.tenant_id;
+      if (!tenantId) {
+        console.warn('Cannot capture training data: lead or tenant_id not found');
+        return;
+      }
+
+      // Fire-and-forget call to snapshot training data
+      supabase.functions.invoke('ai-snapshot-training-data', {
+        body: { lead_id: leadId, tenant_id: tenantId, outcome }
+      }).then(response => {
+        if (response.error) {
+          console.error('Error capturing AI training data:', response.error);
+        } else {
+          console.log(`AI training data captured for lead ${leadId} with outcome: ${outcome}`);
+        }
+      }).catch(err => {
+        console.error('Failed to capture AI training data:', err);
+      });
+    } catch (error) {
+      console.error('Error in captureTrainingDataAsync:', error);
+    }
   }
 
   /**

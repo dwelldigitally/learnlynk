@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Phone, 
   PhoneCall, 
-  PhoneOff,
   Loader2,
   AlertCircle,
   User,
-  LogOut
+  ExternalLink
 } from 'lucide-react';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,12 +43,12 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
   const phoneRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Use external control if provided, otherwise internal state
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   const setIsOpen = onOpenChange || setInternalIsOpen;
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [phoneLoadFailed, setPhoneLoadFailed] = useState(false);
   const [tenantHasAircall, setTenantHasAircall] = useState(false);
   const [userSession, setUserSession] = useState<{
     aircall_user_email: string | null;
@@ -57,7 +56,6 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
   } | null>(null);
   const [currentCall, setCurrentCall] = useState<any>(null);
 
-  // Check if tenant has Aircall connected
   useEffect(() => {
     if (tenantId) {
       checkTenantConnection();
@@ -113,35 +111,47 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
   // Initialize Aircall Phone when sheet opens
   useEffect(() => {
     if (isOpen && tenantHasAircall && containerRef.current && !phoneRef.current) {
-      initializePhone();
+      // Small delay to ensure container is rendered
+      const timer = setTimeout(() => {
+        initializePhone();
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, tenantHasAircall]);
 
   const initializePhone = async () => {
     setIsLoading(true);
+    setPhoneLoadFailed(false);
     
     try {
-      // Dynamically import aircall-everywhere
       const { default: AircallPhone } = await import('aircall-everywhere');
       
       phoneRef.current = new AircallPhone({
         domToLoadPhone: '#aircall-phone-container',
         onLogin: handleLogin,
         onLogout: handleLogout,
-        integrationToLoad: 'learnlynk',
-        debug: false
+        debug: true // Enable debug for troubleshooting
       });
 
-      // Listen to call events
       phoneRef.current.on('incoming_call', handleIncomingCall);
       phoneRef.current.on('outgoing_call', handleOutgoingCall);
       phoneRef.current.on('call_end_ringtone', handleCallEnd);
       phoneRef.current.on('call_ended', handleCallEnded);
       phoneRef.current.on('comment_saved', handleCommentSaved);
       
-      setIsConnected(true);
+      // Check if iframe loaded after a delay
+      setTimeout(() => {
+        const iframe = containerRef.current?.querySelector('iframe');
+        if (!iframe) {
+          console.warn('Aircall iframe did not load');
+          setPhoneLoadFailed(true);
+        }
+        setIsConnected(true);
+      }, 3000);
+      
     } catch (error) {
       console.error('Error initializing Aircall phone:', error);
+      setPhoneLoadFailed(true);
       toast({
         title: "Error loading phone",
         description: "Could not initialize Aircall phone widget",
@@ -158,7 +168,6 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     if (!tenantId || !user?.id) return;
 
     try {
-      // Upsert user session
       const { error } = await supabase
         .from('user_aircall_sessions')
         .upsert({
@@ -219,8 +228,6 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     console.log('Incoming call:', callInfo);
     setCurrentCall({ ...callInfo, direction: 'inbound' });
     onCallStart?.(callInfo);
-    
-    // Could trigger a lead lookup popup here
     matchCallToLead(callInfo.from);
   };
 
@@ -238,14 +245,11 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     console.log('Call ended:', callInfo);
     setCurrentCall(null);
     onCallEnd?.(callInfo);
-    
-    // Log call to database
     await logCallToDatabase(callInfo);
   };
 
   const handleCommentSaved = (data: any) => {
     console.log('Comment saved:', data);
-    // Could update call notes in database
   };
 
   const matchCallToLead = async (phoneNumber: string) => {
@@ -296,20 +300,15 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     }
   };
 
-  // Public method to dial a number
   const dialNumber = (phoneNumber: string, leadId?: string) => {
     if (phoneRef.current && isConnected) {
       phoneRef.current.send('dial_number', { phone_number: phoneNumber });
       
-      // Store lead ID for call logging
       if (leadId) {
         setCurrentCall(prev => ({ ...prev, leadId }));
       }
     } else {
-      // Open the widget first
       setIsOpen(true);
-      
-      // Try to dial after widget loads
       setTimeout(() => {
         if (phoneRef.current) {
           phoneRef.current.send('dial_number', { phone_number: phoneNumber });
@@ -318,7 +317,6 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     }
   };
 
-  // Expose dial function globally for click-to-call
   useEffect(() => {
     (window as any).aircallDial = dialNumber;
     return () => {
@@ -326,13 +324,16 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     };
   }, [isConnected]);
 
+  const openAircallDirect = () => {
+    window.open('https://phone.aircall.io/', '_blank');
+  };
+
   if (!tenantHasAircall) {
-    return null; // Don't show widget if tenant hasn't connected Aircall
+    return null;
   }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      {/* Only render trigger button if not externally controlled */}
       {externalIsOpen === undefined && (
         <SheetTrigger asChild>
           <Button 
@@ -367,8 +368,9 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
         
         <div className="h-[calc(100vh-80px)] overflow-hidden">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex flex-col items-center justify-center h-full gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Loading Aircall phone...</p>
             </div>
           ) : (
             <>
@@ -376,8 +378,7 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
                 <Alert className="m-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Please log in with your Aircall credentials to make calls.
-                    Your personal Aircall account is separate from the institution's connection.
+                    Log in with your personal Aircall account below to make calls.
                   </AlertDescription>
                 </Alert>
               )}
@@ -406,8 +407,38 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
               <div 
                 id="aircall-phone-container" 
                 ref={containerRef}
-                className="w-full h-[600px]"
+                className="w-full h-[500px] flex items-center justify-center"
               />
+              
+              {/* Fallback UI if iframe doesn't load */}
+              {phoneLoadFailed && (
+                <div className="p-4 space-y-4">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      The Aircall phone widget couldn't load. You can still make calls by opening Aircall directly.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <Button 
+                    onClick={openAircallDirect} 
+                    className="w-full"
+                    variant="default"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Aircall in New Tab
+                  </Button>
+                  
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p className="font-medium">To make calls:</p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>Click the button above to open Aircall</li>
+                      <li>Log in with your Aircall credentials</li>
+                      <li>Use Aircall's web phone to make calls</li>
+                    </ol>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -415,7 +446,6 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     </Sheet>
   );
 };
-
 // Export dial function for use in other components
 export const dialWithAircall = (phoneNumber: string, leadId?: string) => {
   if ((window as any).aircallDial) {

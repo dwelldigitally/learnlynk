@@ -14,7 +14,9 @@ import {
   AlertCircle,
   BarChart3,
   Sparkles,
-  Target
+  Target,
+  Download,
+  Play
 } from 'lucide-react';
 import { useAIScoring } from '@/hooks/useAIScoring';
 import { cn } from '@/lib/utils';
@@ -24,10 +26,16 @@ export function AIModelDashboard() {
     model, 
     trainingStats, 
     isTraining, 
+    isBackfilling,
+    isScoringAll,
+    progress,
     trainModel, 
     loadModel, 
     loadTrainingStats,
-    getModelAccuracy 
+    getModelAccuracy,
+    backfillTrainingData,
+    scoreAllLeads,
+    trainAndScoreAll
   } = useAIScoring();
   
   const [accuracy, setAccuracy] = useState<{ total: number; accurate: number; accuracy_rate: number } | null>(null);
@@ -53,9 +61,24 @@ export function AIModelDashboard() {
     setAccuracy(newAccuracy);
   };
 
+  const handleBackfill = async () => {
+    await backfillTrainingData();
+    await loadTrainingStats();
+  };
+
+  const handleScoreAll = async () => {
+    await scoreAllLeads();
+  };
+
+  const handleTrainAndScore = async () => {
+    await trainAndScoreAll();
+    await loadModel();
+  };
+
   const modelType = model?.performance_metrics?.type;
   const isAITrained = modelType === 'ai_trained';
   const confidence = model?.performance_metrics?.confidence;
+  const isProcessing = isTraining || isBackfilling || isScoringAll;
 
   if (isLoading) {
     return (
@@ -68,18 +91,45 @@ export function AIModelDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">AI Scoring Model</h2>
           <p className="text-muted-foreground">
             Train and manage your institution's AI lead scoring model
           </p>
         </div>
-        <Button onClick={handleTrainModel} disabled={isTraining}>
-          <Brain className={cn("h-4 w-4 mr-2", isTraining && "animate-pulse")} />
-          {isTraining ? 'Training...' : 'Train Model'}
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" onClick={handleBackfill} disabled={isProcessing}>
+            <Download className={cn("h-4 w-4 mr-2", isBackfilling && "animate-pulse")} />
+            {isBackfilling ? 'Backfilling...' : 'Backfill Data'}
+          </Button>
+          <Button variant="outline" onClick={handleScoreAll} disabled={isProcessing || !model}>
+            <Play className={cn("h-4 w-4 mr-2", isScoringAll && "animate-pulse")} />
+            {isScoringAll ? 'Scoring...' : 'Score All Leads'}
+          </Button>
+          <Button onClick={handleTrainAndScore} disabled={isProcessing}>
+            <Brain className={cn("h-4 w-4 mr-2", isTraining && "animate-pulse")} />
+            {isTraining ? 'Training...' : 'Train & Score'}
+          </Button>
+        </div>
       </div>
+
+      {/* Progress indicator */}
+      {progress && progress.total > 0 && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">
+                {isBackfilling ? 'Capturing training data...' : isScoringAll ? 'Scoring leads...' : 'Processing...'}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {progress.completed} / {progress.total}
+              </span>
+            </div>
+            <Progress value={(progress.completed / progress.total) * 100} className="h-2" />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -300,23 +350,29 @@ export function AIModelDashboard() {
               </div>
 
               <div className="p-4 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-2">
-                  {trainingStats?.ready_for_training ? (
-                    <>
-                      <CheckCircle className="h-5 w-5 text-emerald-500" />
-                      <span className="font-medium">Ready for AI training</span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="h-5 w-5 text-amber-500" />
-                      <span className="font-medium">More data needed for AI training</span>
-                    </>
-                  )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {trainingStats?.ready_for_training ? (
+                      <>
+                        <CheckCircle className="h-5 w-5 text-emerald-500" />
+                        <span className="font-medium">Ready for AI training</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-5 w-5 text-amber-500" />
+                        <span className="font-medium">More data needed for AI training</span>
+                      </>
+                    )}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleBackfill} disabled={isProcessing}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Backfill from Existing Leads
+                  </Button>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   {trainingStats?.ready_for_training
                     ? 'You have enough historical data to train an AI model'
-                    : `Collect at least ${trainingStats?.min_required || 10} converted and ${trainingStats?.min_required || 10} lost leads`}
+                    : `Collect at least ${trainingStats?.min_required || 10} converted and ${trainingStats?.min_required || 10} lost leads. Use "Backfill" to capture data from existing leads.`}
                 </p>
               </div>
             </CardContent>

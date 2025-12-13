@@ -162,6 +162,9 @@ export class LeadService {
             }
           );
 
+          // Calculate initial AI score asynchronously
+          this.calculateAIScoreAsync(updatedLead?.id || lead.id, effectiveTenantId!);
+
           return { data: updatedLead || lead, error: null };
         }
       } catch (routingError) {
@@ -169,10 +172,36 @@ export class LeadService {
         // Don't fail lead creation if routing fails
       }
 
+      // Calculate initial AI score asynchronously for unrouted leads too
+      if (effectiveTenantId) {
+        this.calculateAIScoreAsync(lead.id, effectiveTenantId);
+      }
+
       return { data: lead, error: null };
     } catch (error) {
       console.error('Error in createLead:', error);
       return { data: null, error };
+    }
+  }
+
+  /**
+   * Calculates AI score for a lead asynchronously (fire-and-forget)
+   */
+  private static async calculateAIScoreAsync(leadId: string, tenantId: string): Promise<void> {
+    try {
+      supabase.functions.invoke('ai-calculate-lead-score', {
+        body: { lead_id: leadId, tenant_id: tenantId }
+      }).then(response => {
+        if (response.error) {
+          console.error('Error calculating AI score:', response.error);
+        } else {
+          console.log(`AI score calculated for lead ${leadId}: ${response.data?.ai_score}`);
+        }
+      }).catch(err => {
+        console.error('Failed to calculate AI score:', err);
+      });
+    } catch (error) {
+      console.error('Error in calculateAIScoreAsync:', error);
     }
   }
 

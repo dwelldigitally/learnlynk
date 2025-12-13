@@ -271,6 +271,52 @@ export class NotificationService {
   }
 
   /**
+   * Notifies an advisor when their assigned lead re-submits a form
+   */
+  static async notifyReenquiry(
+    leadId: string,
+    advisorId: string,
+    leadName: string,
+    formTitle: string
+  ): Promise<void> {
+    try {
+      const { NotificationDispatcher } = await import('./notificationDispatcher');
+      
+      await NotificationDispatcher.send({
+        userId: advisorId,
+        type: 'lead_reenquiry',
+        title: 'Lead Re-enquiry',
+        message: `Your assigned lead ${leadName} has submitted "${formTitle}" again`,
+        data: {
+          lead_id: leadId,
+          lead_name: leadName,
+          form_title: formTitle,
+          reenquiry_at: new Date().toISOString()
+        },
+        priority: 'high'
+      });
+
+      console.log(`Re-enquiry notification sent to advisor ${advisorId} for lead ${leadId}`);
+    } catch (error) {
+      console.error('Error sending re-enquiry notification:', error);
+      // Fallback: direct insert
+      await supabase.from('notifications').insert({
+        user_id: advisorId,
+        type: 'lead_reenquiry',
+        title: 'Lead Re-enquiry',
+        message: `Your assigned lead ${leadName} has submitted "${formTitle}" again`,
+        data: {
+          lead_id: leadId,
+          lead_name: leadName,
+          form_title: formTitle,
+          reenquiry_at: new Date().toISOString()
+        },
+        is_read: false
+      });
+    }
+  }
+
+  /**
    * Creates a notification for a user using the dispatcher
    * Respects user preferences for channels and quiet hours
    */

@@ -416,21 +416,41 @@ export class LeadService {
   }
 
   /**
-   * Gets re-enquiry students
+   * Gets re-enquiry students - leads who have submitted forms multiple times
    */
-  static async getReenquiryStudents(userId: string, tenantId?: string): Promise<{ data: Lead[] | null; error: any }> {
+  static async getReenquiryStudents(userId: string, tenantId?: string, filters?: {
+    dateFrom?: string;
+    dateTo?: string;
+    program?: string;
+    status?: string;
+    assignedTo?: string;
+  }): Promise<{ data: Lead[] | null; error: any }> {
     try {
       let query = supabase
         .from('leads')
-        .select('*')
-        .or('tags.cs.{upsell,program_change,dormant,reactivation,alumni_referral}')
-        .order('lead_score', { ascending: false })
-        .limit(20);
+        .select('*, form_submissions:form_submissions(id, form_id, submitted_at)')
+        .or('reenquiry_count.gt.0,tags.cs.{reenquiry,upsell,program_change,dormant,reactivation,alumni_referral}')
+        .order('last_reenquiry_at', { ascending: false, nullsFirst: false });
 
       if (tenantId) {
         query = query.eq('tenant_id', tenantId);
-      } else {
-        query = query.eq('user_id', userId);
+      }
+
+      // Apply filters
+      if (filters?.dateFrom) {
+        query = query.gte('last_reenquiry_at', filters.dateFrom);
+      }
+      if (filters?.dateTo) {
+        query = query.lte('last_reenquiry_at', filters.dateTo);
+      }
+      if (filters?.program) {
+        query = query.contains('program_interest', [filters.program]);
+      }
+      if (filters?.status) {
+        query = query.eq('status', filters.status as any);
+      }
+      if (filters?.assignedTo) {
+        query = query.eq('assigned_to', filters.assignedTo);
       }
 
       const { data, error } = await query;
@@ -445,5 +465,128 @@ export class LeadService {
       console.error('Error in getReenquiryStudents:', error);
       return { data: null, error };
     }
+  }
+
+  /**
+   * Handles re-enquiry when a lead submits a form again
+   * Updates lead properties, saves form submission, and notifies advisor
+   */
+  static async handleReenquiry(
+    existingLeadId: string,
+    formData: Record<string, any>,
+    formId: string,
+    formTitle: string
+  ): Promise<void> {
+    try {
+      // 1. Get the existing lead
+      const { data: existingLead, error: leadError } = await this.getLead(existingLeadId);
+      if (leadError || !existingLead) {
+        throw new Error('Failed to fetch existing lead');
+      }
+
+      // 2. Save the form submission linked to existing lead
+      const { error: submissionError } = await supabase
+        .from('form_submissions')
+        .insert({
+          form_id: formId,
+          lead_id: existingLeadId,
+          submission_data: {
+            ...formData,
+            reenquiry: true,
+            original_form_title: formTitle,
+          },
+          tenant_id: (existingLead as any).tenant_id
+        });
+
+      if (submissionError) {
+        console.error('Error saving form submission:', submissionError);
+      }
+
+      // 3. Update lead properties
+      const currentTags = existingLead.tags || [];
+      const newTags = currentTags.includes('reenquiry') 
+        ? currentTags 
+        : [...currentTags, 'reenquiry'];
+
+      // Merge program interests if new ones provided
+      const newPrograms = formData['program_interest'] || formData['programs'] || [];
+      const existingPrograms = existingLead.program_interest || [];
+      const mergedPrograms = [...new Set([...existingPrograms, ...(Array.isArray(newPrograms) ? newPrograms : [newPrograms])])];
+
+      await this.updateLead(existingLeadId, {
+        number_of_form_submissions: (existingLead.number_of_form_submissions || 0) + 1,
+        last_form_submission_at: new Date().toISOString(),
+        reenquiry_count: ((existingLead as any).reenquiry_count || 0) + 1,
+        last_reenquiry_at: new Date().toISOString(),
+        tags: newTags,
+        program_interest: mergedPrograms.length > 0 ? mergedPrograms : existingLead.program_interest,
+        notes: existingLead.notes 
+          ? `${existingLead.notes}\n\n[Re-enquiry ${new Date().toLocaleDateString()}] Submitted ${formTitle}`
+          : `[Re-enquiry ${new Date().toLocaleDateString()}] Submitted ${formTitle}`,
+      } as any);
+
+      // 4. Notify assigned advisor if exists
+      if (existingLead.assigned_to) {
+        await NotificationService.notifyReenquiry(
+          existingLeadId,
+          existingLead.assigned_to,
+          `${existingLead.first_name} ${existingLead.last_name}`,
+          formTitle
+        );
+      }
+
+      // Activity logging handled by updateLead
+
+    } catch (error) {
+      console.error('Error handling re-enquiry:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Adds leads to the call list by creating call tasks
+   */
+  static async addToCallList(
+    leadIds: string[],
+    userId: string,
+    tenantId?: string,
+    taskDetails?: { title?: string; description?: string; dueDate?: string }
+  ): Promise<{ success: number; failed: number }> {
+    let success = 0;
+    let failed = 0;
+
+    const today = new Date().toISOString();
+
+    for (const leadId of leadIds) {
+      try {
+        const { error } = await supabase
+          .from('lead_tasks')
+          .insert({
+            lead_id: leadId,
+            user_id: userId,
+            tenant_id: tenantId,
+            title: taskDetails?.title || 'Follow up on re-enquiry',
+            description: taskDetails?.description || 'Lead submitted a form again - follow up required',
+            task_type: 'call',
+            type: 'call',
+            due_date: taskDetails?.dueDate || today,
+            status: 'pending',
+            priority: 'high',
+            assigned_to: userId,
+          } as any);
+
+        if (error) {
+          console.error('Error creating call task for lead:', leadId, error);
+          failed++;
+        } else {
+          success++;
+        }
+      } catch (error) {
+        console.error('Error adding lead to call list:', error);
+        failed++;
+      }
+    }
+
+    return { success, failed };
   }
 }

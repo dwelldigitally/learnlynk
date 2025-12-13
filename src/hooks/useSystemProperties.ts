@@ -65,6 +65,14 @@ const DEFAULT_PROPERTIES: Record<string, Array<{ key: string; label: string; des
     { key: 'late_fee', label: 'Late Payment Fee', description: 'Penalty for late payments', color: '#64748B', icon: 'AlertTriangle' },
     { key: 'graduation_fee', label: 'Graduation Fee', description: 'Graduation ceremony and certificate', color: '#6366F1', icon: 'Award' },
   ],
+  lifecycle_stage: [
+    { key: 'new_inquiry', label: 'New Inquiry', description: 'Initial inquiry received', color: '#38BDF8', icon: 'Inbox' },
+    { key: 'requirements_approved', label: 'Requirements Approved', description: 'Entry requirements have been approved', color: '#FBBF24', icon: 'CheckCircle' },
+    { key: 'payment_received', label: 'Payment Received', description: 'Payment has been received', color: '#34D399', icon: 'DollarSign' },
+    { key: 'registered', label: 'Registered', description: 'Student has been registered', color: '#A78BFA', icon: 'UserCheck' },
+    { key: 'admitted', label: 'Admitted', description: 'Student has been admitted', color: '#818CF8', icon: 'GraduationCap' },
+    { key: 'dismissed', label: 'Dismissed', description: 'Lead has been dismissed', color: '#F87171', icon: 'UserX' },
+  ],
 };
 
 // Seed default properties for a category if none exist

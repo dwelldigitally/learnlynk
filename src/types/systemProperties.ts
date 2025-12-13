@@ -28,6 +28,7 @@ export type PropertyCategory =
   | 'lead_source'
   | 'lead_status'
   | 'lead_priority'
+  | 'lifecycle_stage'
   | 'student_status'
   | 'custom';
 

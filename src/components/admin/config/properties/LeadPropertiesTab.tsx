@@ -35,6 +35,7 @@ import {
 } from '@/config/leadProperties';
 
 const LEAD_CATEGORIES: { key: PropertyCategory; label: string; description: string; buttonLabel: string }[] = [
+  { key: 'lifecycle_stage', label: 'Lifecycle Stages', description: 'Define lifecycle stages shown as filter buttons: New Inquiry, Requirements Approved, etc.', buttonLabel: 'Add Stage' },
   { key: 'lead_source', label: 'Lead Sources', description: 'Define where leads come from: Web, Social Media, Referral, Events, etc.', buttonLabel: 'Add Source' },
   { key: 'lead_status', label: 'Lead Statuses', description: 'Define lead lifecycle stages: New, Contacted, Qualified, Converted, etc.', buttonLabel: 'Add Status' },
   { key: 'lead_priority', label: 'Lead Priorities', description: 'Define priority levels: Low, Medium, High, Urgent, etc.', buttonLabel: 'Add Priority' },
@@ -226,8 +227,9 @@ export function LeadPropertiesTab() {
   return (
     <div className="space-y-6">
       <Tabs value={activeSubTab} onValueChange={(v) => setActiveSubTab(v as PropertyCategory | 'all_properties')}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="all_properties">All Properties</TabsTrigger>
+          <TabsTrigger value="lifecycle_stage">Lifecycle Stages</TabsTrigger>
           <TabsTrigger value="lead_source">Lead Sources</TabsTrigger>
           <TabsTrigger value="lead_status">Lead Statuses</TabsTrigger>
           <TabsTrigger value="lead_priority">Lead Priorities</TabsTrigger>

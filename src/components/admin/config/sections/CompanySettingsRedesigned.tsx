@@ -98,14 +98,17 @@ export function CompanySettingsRedesigned() {
     }
 
     try {
-      // Fetch company profile for this specific tenant
-      const { data, error } = await supabase
+      // Fetch company profile for this specific tenant (handle duplicates by taking oldest)
+      const { data: rows, error } = await supabase
         .from('company_profile')
         .select('*')
         .eq('tenant_id', tenantId)
-        .maybeSingle();
+        .order('created_at', { ascending: true })
+        .limit(1);
 
       if (error) throw error;
+      
+      const data = rows?.[0] || null;
 
       if (data) {
         setExistingProfileId(data.id);

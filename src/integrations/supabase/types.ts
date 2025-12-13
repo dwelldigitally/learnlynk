@@ -2023,7 +2023,7 @@ export type Database = {
           {
             foreignKeyName: "company_profile_tenant_id_fkey"
             columns: ["tenant_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },

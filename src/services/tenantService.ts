@@ -135,14 +135,14 @@ export const TenantService = {
     const existing = existingRows?.[0] || null;
 
     if (existing) {
-      // Update existing
+      // Update existing by ID (not tenant_id) to handle duplicates
       const { error } = await supabase
         .from('company_profile')
         .update({
           ...data,
           updated_at: new Date().toISOString()
         })
-        .eq('tenant_id', tenantId);
+        .eq('id', existing.id);
 
       if (error) throw error;
     } else {

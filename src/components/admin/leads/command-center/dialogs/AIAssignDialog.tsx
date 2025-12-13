@@ -1,12 +1,12 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAIActions } from '@/hooks/useAIActions';
-import { Zap, User, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { useTeamMembers } from '@/hooks/useTeamMembers';
+import { Zap, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 
 interface AIAssignDialogProps {
   open: boolean;
@@ -20,26 +20,30 @@ export function AIAssignDialog({ open, onOpenChange, onSuccess, selectedItems }:
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const { performAIAssignment } = useAIActions();
   const { toast } = useToast();
+  const { data: teamMembers = [] } = useTeamMembers();
 
-  // Mock available advisors
-  const availableAdvisors = [
-    { id: 'advisor-1', name: 'Nicole Ye', email: 'nicole@example.com', specialization: 'Business Programs' },
-    { id: 'advisor-2', name: 'Sarah Johnson', email: 'sarah@example.com', specialization: 'Technology Programs' },
-    { id: 'advisor-3', name: 'Mike Chen', email: 'mike@example.com', specialization: 'Health Sciences' },
-    { id: 'advisor-4', name: 'Emma Wilson', email: 'emma@example.com', specialization: 'Arts & Design' }
-  ];
+  // Filter to advisors only
+  const advisors = teamMembers.filter(m => m.role === 'advisor' || m.app_role === 'advisor');
 
   const handleAnalyze = async () => {
+    if (advisors.length === 0) {
+      toast({
+        title: 'No Advisors Available',
+        description: 'Please add advisors to your team before using AI assignment.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
-      // Simulate AI analysis
+      // Simulate AI analysis with real advisors
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Mock AI recommendations
-      const mockRecommendations = selectedItems.map((itemId, index) => ({
+      const recommendations = selectedItems.map((itemId, index) => ({
         leadId: itemId,
         leadName: `Lead ${index + 1}`,
-        recommendedAdvisor: availableAdvisors[index % availableAdvisors.length],
+        recommendedAdvisor: advisors[index % advisors.length],
         confidence: Math.floor(Math.random() * 30) + 70,
         reasoning: [
           'Program interest match',
@@ -48,7 +52,7 @@ export function AIAssignDialog({ open, onOpenChange, onSuccess, selectedItems }:
         ]
       }));
       
-      setRecommendations(mockRecommendations);
+      setRecommendations(recommendations);
     } catch (error) {
       toast({
         title: 'Analysis Failed',
@@ -62,7 +66,7 @@ export function AIAssignDialog({ open, onOpenChange, onSuccess, selectedItems }:
 
   const handleConfirmAssignments = async () => {
     try {
-      await performAIAssignment(selectedItems, availableAdvisors.map(a => a.id));
+      await performAIAssignment(selectedItems, advisors.map(a => a.id));
       toast({
         title: 'AI Assignment Complete',
         description: `Successfully assigned ${selectedItems.length} leads using AI recommendations.`
@@ -128,7 +132,7 @@ export function AIAssignDialog({ open, onOpenChange, onSuccess, selectedItems }:
                             <div>
                               <h4 className="font-medium">{rec.leadName}</h4>
                               <p className="text-sm text-muted-foreground">
-                                Recommended: {rec.recommendedAdvisor.name}
+                                Recommended: {rec.recommendedAdvisor?.full_name || rec.recommendedAdvisor?.email || 'Unknown'}
                               </p>
                             </div>
                           </div>
@@ -137,9 +141,6 @@ export function AIAssignDialog({ open, onOpenChange, onSuccess, selectedItems }:
                               <Badge variant="secondary">
                                 {rec.confidence}% confidence
                               </Badge>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {rec.recommendedAdvisor.specialization}
-                              </p>
                             </div>
                             <TrendingUp className="h-4 w-4 text-green-500" />
                           </div>

@@ -1,16 +1,14 @@
 import { useConditionalData } from './useConditionalData';
 import { StudentService } from '@/services/studentService';
-import { DemoDataService } from '@/services/demoDataService';
 
 /**
- * Hook to conditionally load student demo data or show empty state
+ * Hook to load students from database
  */
 export function useConditionalStudents() {
   return useConditionalData(
     ['students'],
-    () => DemoDataService.getDemoStudents(),
+    () => [],
     async () => {
-      // Get students with snake_case format to match demo data
       const paginatedResponse = await StudentService.getStudentsPaginated(
         { page: 1, pageSize: 1000 },
         {}

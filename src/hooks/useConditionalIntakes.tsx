@@ -1,14 +1,13 @@
 import { useConditionalData } from './useConditionalData';
 import { enhancedIntakeService, EnhancedIntake } from '@/services/enhancedIntakeService';
-import { DemoDataService } from '@/services/demoDataService';
 
 /**
- * Hook to conditionally load intake demo data or show empty state
+ * Hook to load intakes from database
  */
 export function useConditionalIntakes() {
   return useConditionalData(
     ['intakes'],
-    () => DemoDataService.getDemoIntakes() as EnhancedIntake[],
+    () => [] as EnhancedIntake[],
     () => enhancedIntakeService.getIntakesWithProgramData()
   );
 }

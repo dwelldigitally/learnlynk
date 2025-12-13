@@ -1,13 +1,12 @@
 import { useConditionalData } from './useConditionalData';
-import { DemoDataService } from '@/services/demoDataService';
 
 /**
- * Hook to conditionally load team member demo data or show empty state
+ * Hook to load team members from database
  */
 export function useConditionalTeamMembers() {
   return useConditionalData(
     ['team-members'],
-    () => [], // No demo team members yet
-    undefined // No real team service yet
+    () => [],
+    undefined // Uses profiles table via useTeamMembers hook instead
   );
 }

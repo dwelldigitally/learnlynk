@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Lead } from '@/types/lead';
@@ -16,6 +17,7 @@ import { LeadCommunication, CommunicationFormData, CommunicationType, Communicat
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { AircallCallHistory } from '@/components/admin/integrations/AircallCallHistory';
 
 interface CommunicationHubProps {
   lead: Lead;
@@ -326,116 +328,130 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {/* AI Follow-up Reply Box */}
-        {showReplyBox && (
-          <div className="mb-6 p-4 border rounded-lg bg-muted/50">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Quick Reply</h4>
-                <Button size="sm" variant="ghost" onClick={() => setShowReplyBox(false)}>×</Button>
-              </div>
-              
-              {aiSuggestion && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-blue-700 font-medium">AI Suggestion</span>
-                    <Button size="sm" variant="outline" onClick={useAISuggestion}>
-                      Use This
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="all">All Communications</TabsTrigger>
+            <TabsTrigger value="calls" className="gap-1">
+              <Phone className="h-3 w-3" />
+              Aircall Calls
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all">
+            {/* AI Follow-up Reply Box */}
+            {showReplyBox && (
+              <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Quick Reply</h4>
+                    <Button size="sm" variant="ghost" onClick={() => setShowReplyBox(false)}>×</Button>
+                  </div>
+                  
+                  {aiSuggestion && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-blue-700 font-medium">AI Suggestion</span>
+                        <Button size="sm" variant="outline" onClick={useAISuggestion}>
+                          Use This
+                        </Button>
+                      </div>
+                      <p className="text-blue-600">{aiSuggestion}</p>
+                    </div>
+                  )}
+                  
+                  <Textarea
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    placeholder="Type your reply..."
+                    rows={3}
+                  />
+                  
+                  <div className="flex justify-between items-center">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={generateAIDraft}
+                      disabled={aiLoading}
+                      className="gap-2"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      {aiLoading ? 'Generating...' : 'Draft with AI'}
                     </Button>
+                    
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setShowReplyBox(false)}>
+                        Cancel
+                      </Button>
+                      <Button size="sm" onClick={sendReply} disabled={!replyContent.trim()}>
+                        Send Reply
+                      </Button>
+                    </div>
                   </div>
-                  <p className="text-blue-600">{aiSuggestion}</p>
-                </div>
-              )}
-              
-              <Textarea
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Type your reply..."
-                rows={3}
-              />
-              
-              <div className="flex justify-between items-center">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={generateAIDraft}
-                  disabled={aiLoading}
-                  className="gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {aiLoading ? 'Generating...' : 'Draft with AI'}
-                </Button>
-                
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setShowReplyBox(false)}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={sendReply} disabled={!replyContent.trim()}>
-                    Send Reply
-                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {communications.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>No communications logged yet</p>
-            <p className="text-sm mt-1">Start by logging your first interaction with this lead</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {communications.map((comm, index) => (
-              <div key={comm.id}>
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <div className="flex items-center gap-1 mt-1">
-                    {getCommunicationIcon(comm.type)}
-                    {getDirectionIcon(comm.direction)}
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium capitalize">{comm.type}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {comm.direction}
-                          </Badge>
-                          {getStatusBadge(comm.status)}
-                          {/* Show AI Transcription badge for calls */}
-                          {comm.type === 'phone' && (
-                            <Badge variant="secondary" className="text-xs">
-                              AI Transcribed
-                            </Badge>
-                          )}
+            {communications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No communications logged yet</p>
+                <p className="text-sm mt-1">Start by logging your first interaction with this lead</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {communications.map((comm, index) => (
+                  <div key={comm.id}>
+                    <div className="flex items-start gap-3 p-4 border rounded-lg">
+                      <div className="flex items-center gap-1 mt-1">
+                        {getCommunicationIcon(comm.type)}
+                        {getDirectionIcon(comm.direction)}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium capitalize">{comm.type}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {comm.direction}
+                              </Badge>
+                              {getStatusBadge(comm.status)}
+                              {comm.type === 'phone' && (
+                                <Badge variant="secondary" className="text-xs">
+                                  AI Transcribed
+                                </Badge>
+                              )}
+                            </div>
+                            {comm.subject && (
+                              <p className="text-sm font-medium">{comm.subject}</p>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(comm.communication_date), 'MMM d, yyyy h:mm a')}
+                          </span>
                         </div>
-                        {comm.subject && (
-                          <p className="text-sm font-medium">{comm.subject}</p>
+                        <p className="text-sm text-muted-foreground">{comm.content}</p>
+                        
+                        {comm.type === 'phone' && (
+                          <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs">
+                            <span className="font-medium text-purple-700">AI Transcription:</span>
+                            <p className="text-purple-600 mt-1">
+                              "Hi {lead.first_name}, thanks for your interest in our MBA program. I understand you're looking for evening classes to accommodate your work schedule..."
+                            </p>
+                          </div>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(comm.communication_date), 'MMM d, yyyy h:mm a')}
-                      </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{comm.content}</p>
-                    
-                    {/* Show AI Transcription for phone calls */}
-                    {comm.type === 'phone' && (
-                      <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs">
-                        <span className="font-medium text-purple-700">AI Transcription:</span>
-                        <p className="text-purple-600 mt-1">
-                          "Hi {lead.first_name}, thanks for your interest in our MBA program. I understand you're looking for evening classes to accommodate your work schedule..."
-                        </p>
-                      </div>
-                    )}
+                    {index < communications.length - 1 && <Separator className="my-2" />}
                   </div>
-                </div>
-                {index < communications.length - 1 && <Separator className="my-2" />}
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
+          </TabsContent>
+          
+          <TabsContent value="calls">
+            <AircallCallHistory leadId={lead.id} showTitle={false} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

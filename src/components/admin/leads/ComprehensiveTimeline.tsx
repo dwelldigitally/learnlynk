@@ -26,7 +26,12 @@ import {
   DollarSign,
   Receipt,
   FileSpreadsheet,
-  Edit
+  Edit,
+  Phone,
+  PhoneIncoming,
+  PhoneOutgoing,
+  PhoneMissed,
+  Play
 } from 'lucide-react';
 import { leadActivityService, ActivityLogEntry } from '@/services/leadActivityService';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +41,7 @@ interface TimelineEvent {
   timestamp: string;
   action: string;
   description: string;
-  type: 'communication' | 'document' | 'engagement' | 'system' | 'task' | 'note' | 'stage' | 'lead' | 'payment';
+  type: 'communication' | 'document' | 'engagement' | 'system' | 'task' | 'note' | 'stage' | 'lead' | 'payment' | 'call';
   source: string; // Now stores actual user name or "System"
   metadata?: any;
 }
@@ -149,12 +154,31 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       )
       .subscribe();
 
+    // Subscribe to aircall_calls
+    const aircallChannel = supabase
+      .channel(`timeline-aircall-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'aircall_calls',
+          filter: `lead_id=eq.${leadId}`
+        },
+        () => {
+          console.log('📞 Aircall call changed, refreshing timeline');
+          loadTimelineData();
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(activityChannel);
       supabase.removeChannel(commsChannel);
       supabase.removeChannel(tasksChannel);
       supabase.removeChannel(docsChannel);
       supabase.removeChannel(notesChannel);
+      supabase.removeChannel(aircallChannel);
     };
   }, [leadId]);
 
@@ -374,6 +398,36 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
         }
       });
 
+      // 6. Get Aircall calls
+      const { data: aircallCalls } = await supabase
+        .from('aircall_calls')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('started_at', { ascending: false });
+
+      aircallCalls?.forEach(call => {
+        const directionLabel = call.direction === 'inbound' ? 'Inbound' : call.direction === 'outbound' ? 'Outbound' : 'Missed';
+        const durationText = call.duration ? `${Math.floor(call.duration / 60)}m ${call.duration % 60}s` : '';
+        
+        events.push({
+          id: `aircall-${call.id}`,
+          timestamp: call.started_at || call.created_at,
+          action: `AIRCALL ${directionLabel.toUpperCase()}`,
+          description: call.notes || `Call ${call.status === 'answered' ? 'answered' : call.status} with ${call.phone_number}${durationText ? ` (${durationText})` : ''}`,
+          type: 'call',
+          source: call.agent_name || 'Aircall',
+          metadata: { 
+            aircall_call_id: call.aircall_call_id,
+            direction: call.direction,
+            status: call.status,
+            duration: call.duration,
+            recording_url: call.recording_url,
+            outcome: call.outcome,
+            phone_number: call.phone_number
+          }
+        });
+      });
+
       // Sort events by timestamp (newest first)
       events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
@@ -444,6 +498,15 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       }
     }
 
+    // Aircall call icons based on direction
+    if (type === 'call') {
+      const direction = actionType;
+      if (direction === 'inbound') return <PhoneIncoming className="h-3 w-3" />;
+      if (direction === 'outbound') return <PhoneOutgoing className="h-3 w-3" />;
+      if (direction === 'missed') return <PhoneMissed className="h-3 w-3" />;
+      return <Phone className="h-3 w-3" />;
+    }
+
     switch (type) {
       case 'communication': return <Mail className="h-3 w-3" />;
       case 'document': return <FileText className="h-3 w-3" />;
@@ -453,6 +516,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       case 'stage': return <ArrowRight className="h-3 w-3" />;
       case 'system': return <Globe className="h-3 w-3" />;
       case 'payment': return <DollarSign className="h-3 w-3" />;
+      case 'call': return <Phone className="h-3 w-3" />;
       default: return <Activity className="h-3 w-3" />;
     }
   };
@@ -497,6 +561,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       case 'task': return 'bg-green-500';
       case 'note': return 'bg-yellow-500';
       case 'stage': return 'bg-indigo-500';
+      case 'call': return 'bg-violet-500';
       case 'payment': return 'bg-emerald-500';
       default: return 'bg-gray-500';
     }
@@ -511,6 +576,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
     if (filter === 'engagement') return event.type === 'engagement' || event.type === 'system' || event.type === 'stage' || event.type === 'lead';
     if (filter === 'property') return event.metadata?.action_type === 'lead_updated';
     if (filter === 'payment') return event.type === 'payment';
+    if (filter === 'calls') return event.type === 'call';
     if (filter === 'task') return event.type === 'task';
     if (filter === 'note') return event.type === 'note';
     return true;
@@ -609,6 +675,14 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
               Changes
             </Button>
             <Button 
+              variant={filter === 'calls' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => onFilterChange('calls')}
+            >
+              <Phone className="h-3 w-3 mr-1" />
+              Calls
+            </Button>
+            <Button 
               variant={filter === 'engagement' ? 'default' : 'ghost'} 
               size="sm"
               onClick={() => onFilterChange('engagement')}
@@ -644,11 +718,28 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
                       <p className="text-sm text-muted-foreground mb-1">
                         {event.description}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
                           {new Date(event.timestamp).toLocaleString()}
                         </span>
+                        {/* Show recording play button for Aircall calls */}
+                        {event.type === 'call' && event.metadata?.recording_url && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs gap-1"
+                            onClick={() => window.open(event.metadata.recording_url, '_blank')}
+                          >
+                            <Play className="h-3 w-3" />
+                            Play Recording
+                          </Button>
+                        )}
+                        {event.type === 'call' && event.metadata?.outcome && (
+                          <Badge variant="outline" className="text-xs">
+                            {event.metadata.outcome}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>

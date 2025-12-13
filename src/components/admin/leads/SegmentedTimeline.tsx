@@ -19,125 +19,18 @@ interface SegmentedTimelineProps {
 export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTimelineProps) {
   const [activeStage, setActiveStage] = useState<string>('all');
   
-  // Generate dummy activities for demo purposes
-  const dummyActivities = [
-    {
-      id: 'dummy-1',
-      type: 'communication' as const,
-      title: 'Email - Initial Inquiry Response',
-      description: 'Sent program information and scheduled consultation call',
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: MessageSquare,
-      badge: 'outbound',
-      stage: 'student' as const,
-    },
-    {
-      id: 'dummy-2',
-      type: 'task' as const,
-      title: 'Follow-up on Application',
-      description: 'Check application status and provide updates',
-      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: CheckSquare,
-      badge: 'completed',
-      stage: 'applicant' as const,
-    },
-    {
-      id: 'dummy-3',
-      type: 'note' as const,
-      title: 'Note - Student Interest',
-      description: 'Student expressed strong interest in data science program. Has background in mathematics.',
-      timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: StickyNote,
-      badge: 'general',
-      stage: 'lead' as const,
-    },
-    {
-      id: 'dummy-4',
-      type: 'communication' as const,
-      title: 'Phone Call - Consultation',
-      description: 'Discussed program requirements and answered questions about curriculum',
-      timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: MessageSquare,
-      badge: 'inbound',
-      stage: 'lead' as const,
-    },
-    {
-      id: 'dummy-5',
-      type: 'task' as const,
-      title: 'Send Welcome Package',
-      description: 'Prepare and send enrollment materials',
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: CheckSquare,
-      badge: 'pending',
-      stage: 'student' as const,
-    },
-  ];
+  // Mock function to determine activity stage based on date
+  function getActivityStage(date: string): 'lead' | 'applicant' | 'student' {
+    const activityDate = new Date(date);
+    const now = new Date();
+    const daysDiff = Math.floor((now.getTime() - activityDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff <= 30) return 'student';
+    if (daysDiff <= 60) return 'applicant';
+    return 'lead';
+  }
 
-  // Generate dummy audit logs
-  const dummyAuditLogs = [
-    {
-      id: 'audit-1',
-      type: 'audit' as const,
-      title: 'Status Changed',
-      description: 'Lead status changed from "new" to "contacted" by Sarah Johnson',
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: User,
-      badge: 'system',
-      stage: 'applicant' as const,
-    },
-    {
-      id: 'audit-2',
-      type: 'audit' as const,
-      title: 'Lead Score Updated',
-      description: 'AI system updated lead score from 72 to 85 based on engagement activity',
-      timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: BookOpen,
-      badge: 'ai',
-      stage: 'applicant' as const,
-    },
-    {
-      id: 'audit-3',
-      type: 'audit' as const,
-      title: 'Advisor Assigned',
-      description: 'Lead automatically assigned to Sarah Johnson by routing rules',
-      timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: User,
-      badge: 'assignment',
-      stage: 'lead' as const,
-    },
-    {
-      id: 'audit-4',
-      type: 'audit' as const,
-      title: 'Program Interest Updated',
-      description: 'Added "Data Science MBA" to program interests',
-      timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: GraduationCap,
-      badge: 'field_update',
-      stage: 'lead' as const,
-    },
-    {
-      id: 'audit-5',
-      type: 'audit' as const,
-      title: 'Priority Escalated',
-      description: 'Lead priority changed from "medium" to "high" due to qualification criteria',
-      timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: BookOpen,
-      badge: 'priority',
-      stage: 'lead' as const,
-    },
-    {
-      id: 'audit-6',
-      type: 'audit' as const,
-      title: 'Lead Created',
-      description: 'Lead created from website form submission',
-      timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-      icon: User,
-      badge: 'creation',
-      stage: 'lead' as const,
-    },
-  ];
-
-  // Combine all activities into timeline
+  // Combine all real activities into timeline
   const allActivities = [
     ...communications.map(item => ({
       id: item.id,
@@ -147,7 +40,7 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
       timestamp: item.communication_date,
       icon: MessageSquare,
       badge: item.direction,
-      stage: getActivityStage(item.created_at), // Mock stage assignment
+      stage: getActivityStage(item.created_at),
     })),
     ...tasks.map(item => ({
       id: item.id,
@@ -169,20 +62,7 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
       badge: item.note_type,
       stage: getActivityStage(item.created_at),
     })),
-    ...dummyActivities,
-    ...dummyAuditLogs,
   ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-  // Mock function to determine activity stage based on date
-  function getActivityStage(date: string): 'lead' | 'applicant' | 'student' {
-    const activityDate = new Date(date);
-    const now = new Date();
-    const daysDiff = Math.floor((now.getTime() - activityDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff <= 30) return 'student';
-    if (daysDiff <= 60) return 'applicant';
-    return 'lead';
-  }
 
   const getStageIcon = (stage: string) => {
     switch (stage) {
@@ -198,7 +78,7 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
       case 'lead': return 'text-blue-500';
       case 'applicant': return 'text-orange-500';
       case 'student': return 'text-green-500';
-      default: return 'text-gray-500';
+      default: return 'text-muted-foreground';
     }
   };
 
@@ -252,7 +132,7 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
               <Card>
                 <CardContent className="p-6">
                   <p className="text-center text-muted-foreground">
-                    No activity in this stage yet
+                    No activity recorded yet
                   </p>
                 </CardContent>
               </Card>

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { HelpIcon } from '@/components/ui/help-icon';
-import { useHelpContent } from '@/hooks/useHelpContent';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   BarChart, 
@@ -33,9 +30,7 @@ import {
   Award,
   Filter
 } from 'lucide-react';
-import { LeadTaskService } from '@/services/leadTaskService';
-import { LeadCommunicationService } from '@/services/leadCommunicationService';
-import { EnhancedLeadService } from '@/services/enhancedLeadService';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface AnalyticsData {
@@ -52,8 +47,9 @@ interface AnalyticsData {
   responseTimeAnalysis: Array<{ timeRange: string; count: number }>;
 }
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
 export function AdvancedLeadAnalyticsDashboard() {
-  const { getHelpContent } = useHelpContent();
   const { toast } = useToast();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,55 +62,84 @@ export function AdvancedLeadAnalyticsDashboard() {
   const loadAnalytics = async () => {
     setLoading(true);
     try {
-      // This would normally be a dedicated analytics service
-      // For now, we'll simulate the data structure
-      const mockAnalytics: AnalyticsData = {
-        totalLeads: 247,
-        totalCommunications: 589,
-        totalTasks: 156,
-        conversionRate: 23.5,
-        avgResponseTime: 4.2,
-        leadsBySource: [
-          { name: 'Website', value: 89, color: '#0088FE' },
-          { name: 'Social Media', value: 67, color: '#00C49F' },
-          { name: 'Email', value: 45, color: '#FFBB28' },
-          { name: 'Referral', value: 32, color: '#FF8042' },
-          { name: 'Ads', value: 14, color: '#8884D8' },
-        ],
-        leadsByStatus: [
-          { name: 'New', value: 78, color: '#0088FE' },
-          { name: 'Contacted', value: 65, color: '#00C49F' },
-          { name: 'Qualified', value: 54, color: '#FFBB28' },
-          { name: 'Converted', value: 32, color: '#FF8042' },
-          { name: 'Lost', value: 18, color: '#8884D8' },
-        ],
-        communicationsByType: [
-          { name: 'Email', value: 234 },
-          { name: 'Phone', value: 189 },
-          { name: 'Meeting', value: 98 },
-          { name: 'SMS', value: 68 },
-        ],
-        tasksByPriority: [
-          { name: 'High', value: 45 },
-          { name: 'Medium', value: 78 },
-          { name: 'Low', value: 33 },
-        ],
-        weeklyTrends: [
-          { week: 'Week 1', leads: 67, communications: 142, tasks: 34 },
-          { week: 'Week 2', leads: 73, communications: 156, tasks: 41 },
-          { week: 'Week 3', leads: 61, communications: 134, tasks: 38 },
-          { week: 'Week 4', leads: 46, communications: 157, tasks: 43 },
-        ],
-        responseTimeAnalysis: [
-          { timeRange: '< 1 hour', count: 89 },
-          { timeRange: '1-4 hours', count: 156 },
-          { timeRange: '4-24 hours', count: 234 },
-          { timeRange: '1-3 days', count: 78 },
-          { timeRange: '> 3 days', count: 32 },
-        ],
-      };
+      const days = parseInt(timeRange);
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
 
-      setAnalytics(mockAnalytics);
+      // Fetch real data from database
+      const [leadsResult, commsResult, tasksResult] = await Promise.all([
+        supabase.from('leads').select('id, source, status, created_at').gte('created_at', startDate.toISOString()),
+        supabase.from('lead_communications').select('id, type, created_at').gte('created_at', startDate.toISOString()),
+        supabase.from('lead_tasks').select('id, priority, status, created_at').gte('created_at', startDate.toISOString())
+      ]);
+
+      const leads = leadsResult.data || [];
+      const communications = commsResult.data || [];
+      const tasks = tasksResult.data || [];
+
+      // Calculate leads by source
+      const sourceMap = new Map<string, number>();
+      leads.forEach(lead => {
+        const source = lead.source || 'unknown';
+        sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
+      });
+      const leadsBySource = Array.from(sourceMap.entries()).map(([name, value], i) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        value,
+        color: COLORS[i % COLORS.length]
+      }));
+
+      // Calculate leads by status
+      const statusMap = new Map<string, number>();
+      leads.forEach(lead => {
+        const status = lead.status || 'unknown';
+        statusMap.set(status, (statusMap.get(status) || 0) + 1);
+      });
+      const leadsByStatus = Array.from(statusMap.entries()).map(([name, value], i) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        value,
+        color: COLORS[i % COLORS.length]
+      }));
+
+      // Calculate communications by type
+      const typeMap = new Map<string, number>();
+      communications.forEach(comm => {
+        const type = comm.type || 'unknown';
+        typeMap.set(type, (typeMap.get(type) || 0) + 1);
+      });
+      const communicationsByType = Array.from(typeMap.entries()).map(([name, value]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        value
+      }));
+
+      // Calculate tasks by priority
+      const priorityMap = new Map<string, number>();
+      tasks.forEach(task => {
+        const priority = task.priority || 'medium';
+        priorityMap.set(priority, (priorityMap.get(priority) || 0) + 1);
+      });
+      const tasksByPriority = Array.from(priorityMap.entries()).map(([name, value]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        value
+      }));
+
+      // Calculate conversion rate
+      const convertedLeads = leads.filter(l => l.status === 'converted').length;
+      const conversionRate = leads.length > 0 ? (convertedLeads / leads.length) * 100 : 0;
+
+      setAnalytics({
+        totalLeads: leads.length,
+        totalCommunications: communications.length,
+        totalTasks: tasks.filter(t => t.status !== 'completed').length,
+        conversionRate: Math.round(conversionRate * 10) / 10,
+        avgResponseTime: 4.2, // Would need more complex calculation
+        leadsBySource,
+        leadsByStatus,
+        communicationsByType,
+        tasksByPriority,
+        weeklyTrends: [], // Would need weekly aggregation
+        responseTimeAnalysis: [] // Would need response time tracking
+      });
     } catch (error) {
       console.error('Error loading analytics:', error);
       toast({
@@ -148,8 +173,6 @@ export function AdvancedLeadAnalyticsDashboard() {
       </div>
     );
   }
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
   return (
     <div className="space-y-6">
@@ -192,10 +215,6 @@ export function AdvancedLeadAnalyticsDashboard() {
               </div>
               <Users className="h-8 w-8 text-blue-500" />
             </div>
-            <div className="flex items-center mt-2">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-sm text-green-500">+12% from last period</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -207,10 +226,6 @@ export function AdvancedLeadAnalyticsDashboard() {
                 <p className="text-2xl font-bold">{analytics.totalCommunications}</p>
               </div>
               <MessageSquare className="h-8 w-8 text-green-500" />
-            </div>
-            <div className="flex items-center mt-2">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-sm text-green-500">+8% from last period</span>
             </div>
           </CardContent>
         </Card>
@@ -224,10 +239,6 @@ export function AdvancedLeadAnalyticsDashboard() {
               </div>
               <CheckSquare className="h-8 w-8 text-orange-500" />
             </div>
-            <div className="flex items-center mt-2">
-              <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-              <span className="text-sm text-red-500">-3% from last period</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -240,10 +251,6 @@ export function AdvancedLeadAnalyticsDashboard() {
               </div>
               <Target className="h-8 w-8 text-purple-500" />
             </div>
-            <div className="flex items-center mt-2">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-sm text-green-500">+2.1% from last period</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -255,10 +262,6 @@ export function AdvancedLeadAnalyticsDashboard() {
                 <p className="text-2xl font-bold">{analytics.avgResponseTime}h</p>
               </div>
               <Clock className="h-8 w-8 text-indigo-500" />
-            </div>
-            <div className="flex items-center mt-2">
-              <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-sm text-green-500">-0.5h improvement</span>
             </div>
           </CardContent>
         </Card>
@@ -274,25 +277,31 @@ export function AdvancedLeadAnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={analytics.leadsBySource}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {analytics.leadsBySource.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {analytics.leadsBySource.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={analytics.leadsBySource}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {analytics.leadsBySource.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No lead data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -304,15 +313,21 @@ export function AdvancedLeadAnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.leadsByStatus}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#0088FE" />
-              </BarChart>
-            </ResponsiveContainer>
+            {analytics.leadsByStatus.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analytics.leadsByStatus}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#0088FE" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No status data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -327,61 +342,50 @@ export function AdvancedLeadAnalyticsDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.communicationsByType} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#00C49F" />
-              </BarChart>
-            </ResponsiveContainer>
+            {analytics.communicationsByType.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analytics.communicationsByType} layout="horizontal">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#00C49F" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No communication data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Response Time Analysis
+              <CheckSquare className="h-5 w-5" />
+              Tasks by Priority
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={analytics.responseTimeAnalysis}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timeRange" />
-                <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey="count" stroke="#FFBB28" fill="#FFBB28" fillOpacity={0.6} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {analytics.tasksByPriority.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analytics.tasksByPriority}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#FFBB28" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No task data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
-
-      {/* Weekly Trends */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Weekly Activity Trends
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={analytics.weeklyTrends}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="leads" stroke="#0088FE" strokeWidth={2} />
-              <Line type="monotone" dataKey="communications" stroke="#00C49F" strokeWidth={2} />
-              <Line type="monotone" dataKey="tasks" stroke="#FFBB28" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
     </div>
   );
 }

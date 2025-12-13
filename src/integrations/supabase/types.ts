@@ -1685,6 +1685,7 @@ export type Database = {
           end_time: string
           follow_up_tasks: string[] | null
           id: string
+          last_synced_at: string | null
           lead_email: string | null
           lead_id: string | null
           lead_name: string | null
@@ -1694,11 +1695,16 @@ export type Database = {
           meeting_link: string | null
           meeting_notes: string | null
           meeting_platform: string | null
+          microsoft_calendar_id: string | null
+          microsoft_change_key: string | null
+          microsoft_event_id: string | null
           objectives: string[] | null
           outcomes: string[] | null
           reminders: Json | null
           start_time: string
           status: string | null
+          sync_direction: string | null
+          sync_status: string | null
           tenant_id: string | null
           title: string
           type: string
@@ -1716,6 +1722,7 @@ export type Database = {
           end_time: string
           follow_up_tasks?: string[] | null
           id?: string
+          last_synced_at?: string | null
           lead_email?: string | null
           lead_id?: string | null
           lead_name?: string | null
@@ -1725,11 +1732,16 @@ export type Database = {
           meeting_link?: string | null
           meeting_notes?: string | null
           meeting_platform?: string | null
+          microsoft_calendar_id?: string | null
+          microsoft_change_key?: string | null
+          microsoft_event_id?: string | null
           objectives?: string[] | null
           outcomes?: string[] | null
           reminders?: Json | null
           start_time: string
           status?: string | null
+          sync_direction?: string | null
+          sync_status?: string | null
           tenant_id?: string | null
           title: string
           type?: string
@@ -1747,6 +1759,7 @@ export type Database = {
           end_time?: string
           follow_up_tasks?: string[] | null
           id?: string
+          last_synced_at?: string | null
           lead_email?: string | null
           lead_id?: string | null
           lead_name?: string | null
@@ -1756,11 +1769,16 @@ export type Database = {
           meeting_link?: string | null
           meeting_notes?: string | null
           meeting_platform?: string | null
+          microsoft_calendar_id?: string | null
+          microsoft_change_key?: string | null
+          microsoft_event_id?: string | null
           objectives?: string[] | null
           outcomes?: string[] | null
           reminders?: Json | null
           start_time?: string
           status?: string | null
+          sync_direction?: string | null
+          sync_status?: string | null
           tenant_id?: string | null
           title?: string
           type?: string
@@ -2786,13 +2804,20 @@ export type Database = {
           id: string
           importance: string | null
           is_read: boolean
+          last_synced_at: string | null
           lead_id: string | null
+          microsoft_change_key: string | null
+          microsoft_conversation_id: string | null
           microsoft_id: string
+          microsoft_internet_message_id: string | null
+          microsoft_message_id: string | null
           microsoft_metadata: Json | null
           received_datetime: string
           sent_datetime: string | null
+          sent_via_outlook: boolean | null
           status: string | null
           subject: string | null
+          sync_status: string | null
           team_inbox_id: string | null
           tenant_id: string | null
           thread_id: string | null
@@ -2818,13 +2843,20 @@ export type Database = {
           id?: string
           importance?: string | null
           is_read?: boolean
+          last_synced_at?: string | null
           lead_id?: string | null
+          microsoft_change_key?: string | null
+          microsoft_conversation_id?: string | null
           microsoft_id: string
+          microsoft_internet_message_id?: string | null
+          microsoft_message_id?: string | null
           microsoft_metadata?: Json | null
           received_datetime: string
           sent_datetime?: string | null
+          sent_via_outlook?: boolean | null
           status?: string | null
           subject?: string | null
+          sync_status?: string | null
           team_inbox_id?: string | null
           tenant_id?: string | null
           thread_id?: string | null
@@ -2850,13 +2882,20 @@ export type Database = {
           id?: string
           importance?: string | null
           is_read?: boolean
+          last_synced_at?: string | null
           lead_id?: string | null
+          microsoft_change_key?: string | null
+          microsoft_conversation_id?: string | null
           microsoft_id?: string
+          microsoft_internet_message_id?: string | null
+          microsoft_message_id?: string | null
           microsoft_metadata?: Json | null
           received_datetime?: string
           sent_datetime?: string | null
+          sent_via_outlook?: boolean | null
           status?: string | null
           subject?: string | null
+          sync_status?: string | null
           team_inbox_id?: string | null
           tenant_id?: string | null
           thread_id?: string | null
@@ -5955,6 +5994,119 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      outlook_email_threads: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          internet_message_id: string | null
+          last_message_at: string | null
+          lead_id: string | null
+          message_count: number | null
+          subject: string | null
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          internet_message_id?: string | null
+          last_message_at?: string | null
+          lead_id?: string | null
+          message_count?: number | null
+          subject?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          internet_message_id?: string | null
+          last_message_at?: string | null
+          lead_id?: string | null
+          message_count?: number | null
+          subject?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outlook_email_threads_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outlook_email_threads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outlook_webhook_subscriptions: {
+        Row: {
+          change_types: string[]
+          client_state: string
+          created_at: string
+          expiration_datetime: string
+          id: string
+          is_active: boolean | null
+          last_notification_at: string | null
+          notification_url: string
+          resource: string
+          subscription_id: string
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          change_types: string[]
+          client_state: string
+          created_at?: string
+          expiration_datetime: string
+          id?: string
+          is_active?: boolean | null
+          last_notification_at?: string | null
+          notification_url: string
+          resource: string
+          subscription_id: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          change_types?: string[]
+          client_state?: string
+          created_at?: string
+          expiration_datetime?: string
+          id?: string
+          is_active?: boolean | null
+          last_notification_at?: string | null
+          notification_url?: string
+          resource?: string
+          subscription_id?: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outlook_webhook_subscriptions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       owner_advisor_mappings: {
         Row: {
@@ -11331,10 +11483,13 @@ export type Database = {
           email_signature: string | null
           id: string
           outlook_access_token: string | null
+          outlook_access_token_encrypted: string | null
           outlook_connected: boolean | null
           outlook_email: string | null
           outlook_refresh_token: string | null
+          outlook_refresh_token_encrypted: string | null
           outlook_token_expires_at: string | null
+          outlook_user_id: string | null
           tenant_id: string | null
           updated_at: string
           user_id: string
@@ -11344,10 +11499,13 @@ export type Database = {
           email_signature?: string | null
           id?: string
           outlook_access_token?: string | null
+          outlook_access_token_encrypted?: string | null
           outlook_connected?: boolean | null
           outlook_email?: string | null
           outlook_refresh_token?: string | null
+          outlook_refresh_token_encrypted?: string | null
           outlook_token_expires_at?: string | null
+          outlook_user_id?: string | null
           tenant_id?: string | null
           updated_at?: string
           user_id: string
@@ -11357,10 +11515,13 @@ export type Database = {
           email_signature?: string | null
           id?: string
           outlook_access_token?: string | null
+          outlook_access_token_encrypted?: string | null
           outlook_connected?: boolean | null
           outlook_email?: string | null
           outlook_refresh_token?: string | null
+          outlook_refresh_token_encrypted?: string | null
           outlook_token_expires_at?: string | null
+          outlook_user_id?: string | null
           tenant_id?: string | null
           updated_at?: string
           user_id?: string

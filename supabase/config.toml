@@ -3,6 +3,21 @@ project_id = "rpxygdaimdiarjpfmswl"
 [functions.outlook-auth]
 verify_jwt = true
 
+[functions.outlook-send-email]
+verify_jwt = true
+
+[functions.outlook-fetch-emails]
+verify_jwt = true
+
+[functions.outlook-webhook]
+verify_jwt = false
+
+[functions.outlook-subscription]
+verify_jwt = true
+
+[functions.outlook-calendar]
+verify_jwt = true
+
 [functions.send-bulk-email]
 verify_jwt = true
 

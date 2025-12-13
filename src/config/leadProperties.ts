@@ -538,6 +538,7 @@ export const LEAD_PROPERTIES: LeadPropertyDefinition[] = [
     category: 'Scores', 
     type: 'number', 
     operators: NUMBER_OPERATORS,
+    visible: true,
     sortable: true, 
     aggregatable: true,
     minWidth: 80, 

@@ -103,7 +103,7 @@ export function GoalsPerformanceTracker() {
       const { data: teamGoalsData } = await supabase
         .from('team_goals')
         .select('*')
-        .eq('status', 'active')
+        .in('status', ['active', 'on_track', 'at_risk', 'off_track'])
         .in('goal_period', relevantPeriods)
         .or(`user_id.eq.${user.id},assignee_ids.cs.{${user.id}}`);
 

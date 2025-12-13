@@ -345,12 +345,7 @@ export function SmartLeadTable({
 
   // Enhanced lead data processing with deterministic values
   const enhanceLeadData = (lead: Lead) => {
-    const salesReps = ['Sarah Johnson', 'Mike Chen', 'Emily Rodriguez', 'David Kim', 'Lisa Thompson', 'Alex Parker'];
     const daysSinceCreated = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (24 * 60 * 60 * 1000));
-
-    // Deterministic hash from lead.id for stable assignments
-    const hash = Array.from(lead.id || '').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-    const assignedRep = lead.assigned_to || salesReps[hash % salesReps.length];
 
     // Deterministic score if missing
     const baseScore = lead.lead_score ?? (() => {
@@ -369,7 +364,6 @@ export function SmartLeadTable({
       ...lead,
       lead_score: baseScore,
       priority: derivedPriority,
-      assigned_to: assignedRep,
       last_contacted_at: lead.last_contacted_at || null,
     } as Lead;
   };

@@ -366,25 +366,30 @@ export class LeadService {
   }
 
   /**
-   * Gets today's call list
+   * Gets today's call list from lead_tasks (call/follow-up tasks due today or overdue)
    */
-  static async getTodaysCallList(userId: string, tenantId?: string): Promise<{ data: Lead[] | null; error: any }> {
+  static async getTodaysCallList(userId: string, tenantId?: string): Promise<{ data: any[] | null; error: any }> {
     try {
       const today = new Date();
-      const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-      const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+      today.setHours(23, 59, 59, 999);
+      const endOfDay = today.toISOString();
 
+      // Build filter conditions
+      const typeFilter = 'type.in.(call,Call,follow_up,Follow Up,follow-up,Follow-Up)';
+      const statusFilter = 'status.in.(pending,in_progress)';
+      
       let query = supabase
-        .from('leads')
-        .select('*')
-        .not('next_follow_up_at', 'is', null)
-        .or(`next_follow_up_at.gte.${startOfDay},next_follow_up_at.lt.${endOfDay},next_follow_up_at.lt.${startOfDay}`)
-        .order('next_follow_up_at', { ascending: true });
+        .from('lead_tasks')
+        .select('*, lead:leads!lead_id(*)');
+      
+      // Apply filters step by step with type assertions
+      query = (query as any).or(typeFilter);
+      query = (query as any).or(statusFilter); 
+      query = query.lte('due_date', endOfDay);
+      query = query.order('due_date', { ascending: true });
 
       if (tenantId) {
         query = query.eq('tenant_id', tenantId);
-      } else {
-        query = query.eq('user_id', userId);
       }
 
       const { data, error } = await query;
@@ -394,7 +399,16 @@ export class LeadService {
         return { data: null, error };
       }
 
-      return { data: data as Lead[], error: null };
+      // Filter for valid call types and tasks with lead data
+      const callTypes = ['call', 'follow_up', 'follow-up'];
+      const validStatuses = ['pending', 'in_progress'];
+      const validTasks = (data || []).filter((task: any) => 
+        task.lead && 
+        callTypes.includes(task.type?.toLowerCase()) &&
+        validStatuses.includes(task.status?.toLowerCase())
+      );
+
+      return { data: validTasks, error: null };
     } catch (error) {
       console.error('Error in getTodaysCallList:', error);
       return { data: null, error };

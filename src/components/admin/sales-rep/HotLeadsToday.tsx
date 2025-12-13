@@ -164,24 +164,13 @@ export function HotLeadsToday() {
 
   return (
     <>
-      <div className="flex items-center gap-2 mb-4">
-        <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 text-white border-none shadow-md ml-auto">
-          {hotLeads.length} 🔥
-        </Badge>
-      </div>
-      
       <div className="space-y-4">
         {hotLeads.length === 0 ? (
           <div className="text-center py-12">
-            <div className="relative mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                <Flame className="w-8 h-8 text-orange-500" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-md transform translate-x-6">
-                <span className="text-white text-xs font-bold">0</span>
-              </div>
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full mx-auto flex items-center justify-center shadow-lg mb-6">
+              <Flame className="w-8 h-8 text-orange-500" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">No hot leads today</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No hot leads today</h3>
             <p className="text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
               Keep nurturing your pipeline. Hot leads will appear here when high engagement is detected.
             </p>

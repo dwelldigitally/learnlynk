@@ -15,6 +15,7 @@ import { useStripeSyncStatus } from '@/services/stripeDataService';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { AircallIntegrationSettings } from '../integrations/AircallIntegrationSettings';
+import { OutlookIntegrationSettings } from '../integrations/OutlookIntegrationSettings';
 interface IntegrationField {
   key: string;
   label: string;
@@ -942,7 +943,10 @@ export const EnhancedIntegrationHub = () => {
           </TabsList>
 
         <TabsContent value="microsoft" className="space-y-4">
-          {microsoftIntegrations.map(integration => <IntegrationCard key={integration.id} integration={integration} />)}
+          {/* Outlook - Primary Microsoft integration with full functionality */}
+          <OutlookIntegrationSettings />
+          
+          {microsoftIntegrations.filter(i => i.id !== 'outlook').map(integration => <IntegrationCard key={integration.id} integration={integration} />)}
         </TabsContent>
 
         <TabsContent value="crm" className="space-y-4">

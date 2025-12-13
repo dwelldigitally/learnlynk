@@ -32,3 +32,18 @@ verify_jwt = true
 
 [functions.aircall-webhook]
 verify_jwt = false
+
+[functions.ai-lead-scoring]
+verify_jwt = false
+
+[functions.ai-extract-lead-features]
+verify_jwt = false
+
+[functions.ai-train-scoring-model]
+verify_jwt = false
+
+[functions.ai-calculate-lead-score]
+verify_jwt = false
+
+[functions.ai-snapshot-training-data]
+verify_jwt = false

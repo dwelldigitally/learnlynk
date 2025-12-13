@@ -893,6 +893,146 @@ export type Database = {
           },
         ]
       }
+      ai_scoring_models: {
+        Row: {
+          created_at: string | null
+          feature_weights: Json | null
+          id: string
+          is_active: boolean | null
+          last_trained_at: string | null
+          model_version: number | null
+          performance_metrics: Json | null
+          tenant_id: string
+          training_sample_size: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          feature_weights?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_trained_at?: string | null
+          model_version?: number | null
+          performance_metrics?: Json | null
+          tenant_id: string
+          training_sample_size?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          feature_weights?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_trained_at?: string | null
+          model_version?: number | null
+          performance_metrics?: Json | null
+          tenant_id?: string
+          training_sample_size?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_scoring_models_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_scoring_predictions: {
+        Row: {
+          actual_outcome: string | null
+          id: string
+          lead_id: string
+          outcome_date: string | null
+          predicted_at: string | null
+          predicted_score: number
+          tenant_id: string
+          was_accurate: boolean | null
+        }
+        Insert: {
+          actual_outcome?: string | null
+          id?: string
+          lead_id: string
+          outcome_date?: string | null
+          predicted_at?: string | null
+          predicted_score: number
+          tenant_id: string
+          was_accurate?: boolean | null
+        }
+        Update: {
+          actual_outcome?: string | null
+          id?: string
+          lead_id?: string
+          outcome_date?: string | null
+          predicted_at?: string | null
+          predicted_score?: number
+          tenant_id?: string
+          was_accurate?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_scoring_predictions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_scoring_predictions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_scoring_training_data: {
+        Row: {
+          created_at: string | null
+          features: Json
+          id: string
+          lead_id: string | null
+          outcome: string | null
+          outcome_date: string | null
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          features?: Json
+          id?: string
+          lead_id?: string | null
+          outcome?: string | null
+          outcome_date?: string | null
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          features?: Json
+          id?: string
+          lead_id?: string | null
+          outcome?: string | null
+          outcome_date?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_scoring_training_data_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_scoring_training_data_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aircall_call_activities: {
         Row: {
           activity_data: Json | null
@@ -3865,6 +4005,51 @@ export type Database = {
           },
         ]
       }
+      lead_ai_score_history: {
+        Row: {
+          ai_score: number
+          calculated_at: string | null
+          id: string
+          lead_id: string
+          model_version: number | null
+          score_breakdown: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          ai_score: number
+          calculated_at?: string | null
+          id?: string
+          lead_id: string
+          model_version?: number | null
+          score_breakdown?: Json | null
+          tenant_id: string
+        }
+        Update: {
+          ai_score?: number
+          calculated_at?: string | null
+          id?: string
+          lead_id?: string
+          model_version?: number | null
+          score_breakdown?: Json | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_ai_score_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_ai_score_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_communication_attachments: {
         Row: {
           communication_id: string | null
@@ -4570,6 +4755,8 @@ export type Database = {
         Row: {
           academic_term_id: string | null
           ai_score: number | null
+          ai_score_breakdown: Json | null
+          ai_score_updated_at: string | null
           assigned_at: string | null
           assigned_to: string | null
           assignment_method:
@@ -4644,6 +4831,8 @@ export type Database = {
         Insert: {
           academic_term_id?: string | null
           ai_score?: number | null
+          ai_score_breakdown?: Json | null
+          ai_score_updated_at?: string | null
           assigned_at?: string | null
           assigned_to?: string | null
           assignment_method?:
@@ -4718,6 +4907,8 @@ export type Database = {
         Update: {
           academic_term_id?: string | null
           ai_score?: number | null
+          ai_score_breakdown?: Json | null
+          ai_score_updated_at?: string | null
           assigned_at?: string | null
           assigned_to?: string | null
           assignment_method?:
